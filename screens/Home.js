@@ -16,6 +16,11 @@ export default function Home(props) {
         />
       </View>
       <View style={styles.bannerContainer}>
+        <Text style={styles.quote}>
+          " Knowledge is of no value unless you put it into practice. "
+        </Text>
+      </View>
+      <View style={styles.bannerContainer}>
         <TouchableOpacity
           style={styles.button}
           onPress={() => props.navigation.navigate('Quizz')}>
@@ -37,7 +42,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    marginTop: 50,
+    marginTop: 25,
     width: 200,
     height: 50,
     backgroundColor: '#56cfe1',
@@ -47,5 +52,13 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 25,
+  },
+  quote: {
+    fontSize: 30,
+    textAlign: 'center',
+    padding: 15,
+    fontWeight: 'bold',
+    color: 'purple',
+    fontFamily: 'fantasy',
   },
 });

@@ -1,4 +1,10 @@
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import React from 'react';
 import {useEffect, useState} from 'react';
 
@@ -10,7 +16,8 @@ export default function Quiz(props) {
   const [wrong, setWrong] = useState(null);
   const [count, setCount] = useState(1);
   const [category, setCategory] = useState(null);
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const getQuiz = async () => {
     const response = await fetch(url);
@@ -19,6 +26,7 @@ export default function Quiz(props) {
     setCorrect(data.results[count].correct_answer);
     setWrong(data.results[count].incorrect_answers);
     setCategory(data.results[count].category);
+    setLoading(false);
   };
   useEffect(() => {
     getQuiz();
@@ -26,52 +34,84 @@ export default function Quiz(props) {
 
   const nextQuestion = () => {
     setCount(count + 1);
-    console.warn(count);
+    if (count == 10) {
+      resultPage();
+    }
   };
 
-  const score = () => {
-    setResult(score + 1);
+  const resultPage = () => {
+    props.navigation.navigate('Result', {score: result});
+  };
+
+  const scores = () => {
+    if (count == 10) {
+      resultPage();
+    }
+    if (count < 10) {
+      setResult(result + 1);
+      nextQuestion();
+    }
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.top}>
-        {quizz && <Text style={styles.question}>{quizz}</Text>}
-      </View>
-      <View style={styles.category}>
-        {category && <Text style={styles.category}>{category}</Text>}
-      </View>
-      <View>
-        <TouchableOpacity style={styles.options}>
-          {wrong && <Text style={styles.option}>{wrong[0]}</Text>}
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.options}>
-          {wrong && <Text style={styles.option}>{wrong[1]}</Text>}
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.options} onPress={score}>
-          {correct && <Text style={styles.option}>{correct}</Text>}
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.options}>
-          {wrong && <Text style={styles.option}>{wrong[2]}</Text>}
-        </TouchableOpacity>
-      </View>
-      <View style={styles.bottom}>
-        <TouchableOpacity style={styles.button} onPress={nextQuestion}>
-          <Text>SKIP</Text>
-        </TouchableOpacity>
-        {count < 10 && (
-          <TouchableOpacity style={styles.button} onPress={nextQuestion}>
-            <Text>NEXT</Text>
-          </TouchableOpacity>
-        )}
-        {count == 10 && (
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => props.navigation.navigate('Result')}>
-            <Text>END</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      {loading ? (
+        <ActivityIndicator
+          size="large"
+          color="#56cfe1"
+          style={styles.spinner}
+        />
+      ) : (
+        <>
+          <View style={styles.top}>
+            {quizz && <Text style={styles.question}>{quizz}</Text>}
+          </View>
+          <View style={styles.category}>
+            {category && <Text style={styles.category}>{category}</Text>}
+          </View>
+          <View>
+            <TouchableOpacity style={styles.options} onPress={nextQuestion}>
+              {wrong && <Text style={styles.option}>{wrong[0]}</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.options} onPress={nextQuestion}>
+              {wrong && <Text style={styles.option}>{wrong[1]}</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.options} onPress={scores}>
+              {correct && <Text style={styles.option}>{correct}</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.options} onPress={nextQuestion}>
+              {wrong && <Text style={styles.option}>{wrong[2]}</Text>}
+            </TouchableOpacity>
+          </View>
+          {count == 10 && (
+            <View>
+              <Text style={styles.category}>This is last question</Text>
+            </View>
+          )}
+          <View style={styles.bottom}>
+            {count < 10 ? (
+              <TouchableOpacity style={styles.button} onPress={nextQuestion}>
+                <Text>SKIP</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => props.navigation.navigate('Result')}>
+                <Text>SKIP</Text>
+              </TouchableOpacity>
+            )}
+            {(count == 10 || count < 10) && (
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() =>
+                  props.navigation.navigate('Result', {score: result})
+                }>
+                <Text>END</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </>
+      )}
     </View>
   );
 }
@@ -115,7 +155,6 @@ const styles = StyleSheet.create({
   category: {
     fontSize: 20,
     textAlign: 'center',
-    // backgroundColor: 'orange',
     borderRadius: 15,
     marginBottom: 10,
   },
@@ -127,5 +166,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 15,
+  },
+  spinner: {
+    justifyContent: 'center',
+    flex: 1,
   },
 });

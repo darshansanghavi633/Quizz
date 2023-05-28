@@ -2,6 +2,7 @@ import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import React from 'react';
 
 export default function Result(props) {
+  const {score} = props.route.params;
   return (
     <View>
       <View style={styles.heading}>
@@ -15,6 +16,17 @@ export default function Result(props) {
           }}
           resizeMode="contain"
         />
+      </View>
+      <View style={styles.bannerContainer}>
+        <Text style={styles.text}>Your score is {score}</Text>
+        {score < 7 ? (
+          <>
+            <Text style={styles.feedback}>Keep practicing.</Text>
+            <Text style={styles.feedback}>Improvement is key.</Text>
+          </>
+        ) : (
+          <Text style={styles.feedback}>Great job! Almost perfect score!</Text>
+        )}
       </View>
       <View style={styles.bannerContainer}>
         <TouchableOpacity
@@ -37,7 +49,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    marginTop: 50,
+    marginTop: 25,
     width: 200,
     height: 50,
     backgroundColor: '#56cfe1',
@@ -58,5 +70,11 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 25,
+  },
+  feedback: {
+    fontSize: 25,
+    color: 'red',
+    fontFamily: 'fantasy',
+    textAlign: 'center',
   },
 });
